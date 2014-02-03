@@ -144,8 +144,16 @@
     \item sysfs - should not be used for debugging (but we do it anyway).
     \item debugfs - explicitly intended for debugging.
     \end{itemize}
-  \item 
-
+  \item sysfs - used by many modules which need to communicate with
+    user space; also abused for debugging; has strict restrictions on
+    the types of exported values (only one numeric value per file).
+  \item debugfs - used by many modules for debugging; has no
+    restrictions on the types of exported values (go ahead, export XML
+    files from the kernel if you like.)
+  \item Both the above are sufficiently widely used to appear in
+    nearly all distribution kernels (including ours).
+  \item sysfs is generally mounted at \texttt{/sys}, while debugfs is
+    generally mounted at \texttt{/sys/kernel/debug}.
   \end{itemize}
 
 \end{frame}
