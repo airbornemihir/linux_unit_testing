@@ -1,3 +1,5 @@
+% note: make sure to replace all instances of procfs, debugfs, sysfs
+% with their \texttt{} versions.
 % presentation.tex
 \documentclass{beamer}
 
@@ -22,6 +24,130 @@
 %--- the presentation begins here ----------------%
 \begin{frame}{Overview}
   Overview of the material.
+  \begin{itemize}
+
+  \item What are unit tests?
+  \item Why unit tests?
+  %% \item Unit test design
+  \item Accessing unit test results
+  \item Summary
+
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{What are unit tests?}
+
+\end{frame}
+
+\begin{frame}{What are unit tests?}
+
+  \begin{itemize}
+
+  \item Ideally, a unit test involves calling a \textit{single} function
+    and \textit{verifying} its return value against an
+    \textit{expected} value.
+  \item Running a test can have two outcomes.
+    \begin{enumerate}
+    \item Pass: Congrats! Your function works correctly on this test
+      input!
+    \item Fail: This again raises multiple outcomes:
+      \begin{enumerate}
+      \item Function body is wrong. (bad, but manageable if you know
+        what you're doing.)
+      \item Expected value is wrong (indicates you don't know what
+        you're doing, i. e. very bad.)
+      \end{enumerate}
+    \end{enumerate}
+
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Why unit tests?}
+
+  \begin{itemize}
+
+  \item Central component of test-driven design.
+  \item Provide convenient way to verify our code.
+  \item Save manual labour (i.e. less time at desk!)
+  \item Crucial: help prevent regressions.
+
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Accessing unit test results}
+
+  \begin{itemize}
+    \item In a userspace program, (i.e. what we're used to) it's
+      simple to make a separate test executable and link the functions
+      we are testing into this executable.
+    \item This way, we maintain a logical separation of the test code
+      from the codebase itself.
+    \item We also avoid bloating our executables.
+    \item Making a separate test executable is not possible within
+      kernel code - why?
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Accessing unit test results}
+
+  \begin{itemize}
+    \item Making a separate test executable is not possible within
+      kernel code - why?
+      \begin{itemize}
+        \item Can't be a userspace program - userspace programs can't
+          link to kernel code (privilege levels and other issues)
+        \item Can't be a kernel - how are you going to run two kernels
+          at once?
+      \end{itemize}
+    \item So, how do we implement unit tests for kernel code now?
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Accessing unit test results}
+
+  \begin{itemize}
+    \item So, how do we implement unit tests for kernel code now?
+      \begin{itemize}
+      \item Kernel modules!
+      \end{itemize}
+    \item With modules, we can easily access kernel functions and test
+      them.
+    \item We can run all the tests at once, in the init function of
+      the module, after setting a load priority for the module.
+    \item If we use loadable modules (instead of static modules), we
+      can avoid kernel bloat too - simply unload the module when done.
+    \item One detail remains - how do we access the results of these
+      tests in userspace?
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Accessing unit test results}
+
+  \begin{itemize}
+
+  \item How do we access the results of our unit tests in userspace?
+    \begin{itemize}
+    \item Special kernel filesystems - sysfs and debugfs
+    \end{itemize}
+
+  \item It's actually quite common for kernel info to need to be
+    exported to userspace, and also for kernel code to get control
+    info from userspace.
+  \item For this, there are certain special file systems.
+    \begin{itemize}
+    \item procfs - NOT to be used for debugging.
+    \item sysfs - should not be used for debugging (but we do it anyway).
+    \item debugfs - explicitly intended for debugging.
+    \end{itemize}
+  \item 
+
+  \end{itemize}
+
 \end{frame}
 
 \end{document}
