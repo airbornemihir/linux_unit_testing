@@ -135,10 +135,9 @@
     \item Special kernel filesystems - sysfs and debugfs
     \end{itemize}
 
-  \item It's actually quite common for kernel info to need to be
-    exported to userspace, and also for kernel code to get control
-    info from userspace.
-  \item For this, there are certain special file systems.
+  \item It's actually quite common for kernel variables to need to be
+    readable and possibly modifiable from  userspace. For this
+    purpose, the Linux kernel provides certain special file systems.
     \begin{itemize}
     \item procfs - NOT to be used for debugging.
     \item sysfs - should not be used for debugging (but we do it anyway).
@@ -148,12 +147,77 @@
     user space; also abused for debugging; has strict restrictions on
     the types of exported values (only one numeric value per file).
   \item debugfs - used by many modules for debugging; has no
-    restrictions on the types of exported values (go ahead, export XML
-    files from the kernel if you like.)
-  \item Both the above are sufficiently widely used to appear in
+    restrictions on the types of exported values.
+  \item Both of the above are sufficiently widely used to appear in
     nearly all distribution kernels (including ours).
   \item sysfs is generally mounted at \texttt{/sys}, while debugfs is
     generally mounted at \texttt{/sys/kernel/debug}.
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Using debugfs for debugging}
+
+  \begin{itemize}
+  \item Every kernel module should store its debugging files in a
+    separate directory in debugfs. Optionally, subdirectories can be
+    used for better organisation.
+  \item This function is used for creating a directory - \\
+    \texttt{struct dentry *debugfs\_create\_dir(const char *name, struct
+      dentry *parent);}\\
+    If the value of \texttt{parent} is \texttt{NULL}, then the
+    directory is created at the debugfs root.
+  \item The \texttt{struct dentry *} pointer obtained from this
+    function can now be used to create files in the directory, using
+    this function - \\
+    \texttt{struct dentry *debugfs\_create\_file(const char *name,
+      umode\_t mode,
+           struct dentry *parent, void *data,
+           const struct file\_operations *fops);}
+  \end{itemize}
+  
+\end{frame}
+
+\begin{frame}{Using debugfs for debugging}
+
+  \begin{itemize}
+
+  \item Usually, though, the function
+    \texttt{debugfs\_create\_file} is too bulky for our purposes -
+    we'd rather not have to make a set of file operations.
+  \item The debugfs module also provides a few convenience functions
+    for common debugging use cases, to remove the need for making sets
+    of file operations.
+  \item In cases where we only want to export a numeric value, we can
+    take advantage of these functions:
+    \begin{itemize}
+
+    \item \texttt{struct dentry *debugfs\_create\_u8(const char *name, 
+      umode\_t mode,
+           struct dentry *parent, u8 *value);}
+    \item \texttt{struct dentry *debugfs\_create\_u16(const char *name,
+      umode\_t mode,
+          struct dentry *parent, u16 *value);}
+    \item \texttt{struct dentry *debugfs\_create\_u32(const char *name,
+      umode\_t mode,
+          struct dentry *parent, u32 *value);}
+    \item \texttt{struct dentry *debugfs\_create\_u64(const char *name,
+      umode\_t mode,
+          struct dentry *parent, u64 *value);}
+
+    \end{itemize}
+
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Acknowledgements}
+
+  \begin{itemize}
+
+  \item \texttt{doc/Documentation/filesystems/debugfs.txt} in the
+    kernel source. (primary reference, authored by Jonathan Corbet.)
+
   \end{itemize}
 
 \end{frame}
