@@ -30,6 +30,7 @@
   \item Why unit tests?
   %% \item Unit test design
   \item Accessing unit test results
+  \item Example
   \item Summary
 
   \end{itemize}
@@ -209,6 +210,50 @@
 
   \end{itemize}
 
+\end{frame}
+
+\begin{frame}{Example}
+  \begin{itemize}
+  \item Suppose you make a kernel function\\
+    \texttt{unsigned int lcs\_length(char *s1, char *s2);}\\
+    for determining the length of the longest common substring of
+    the two null-terminated strings, \texttt{s1} and \texttt{s2}.
+  \item You'll need to test it with a few examples.
+    \begin{itemize}
+    \item \texttt{lcs\_length("hammer", "ship")} should be \texttt{0}.
+    \item \texttt{lcs\_length("hammer", "boat")} should be \texttt{1}.
+    \item \texttt{lcs\_length("sledgehammer", "jackhammer")} should be \texttt{6}.
+    \end{itemize}
+  \item The more complex the function, the more test cases it
+    requires.
+  \item How do we do this?
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Example}
+  \begin{itemize}
+  \item All our code will go into our module init function. Since we
+    are building a static module, there is no need for a module exit
+    function.
+  \item Start by making a directory at the root of debugfs:\\
+    \texttt{struct dentry *dir = debugfs\_create\_dir("lcs\_test", NULL);}
+  \item Next, we create three files inside this directory:\\
+    \texttt{struct dentry *test01 = debugfs\_create\_u32("test01",
+      O\_RDONLY, dir, (u32)(lcs\_length("hammer", "ship") == 0));}\\
+    \texttt{struct dentry *test02 = debugfs\_create\_u32("test02",
+      O\_RDONLY, dir, (u32)(lcs\_length("hammer", "boat") == 1));}\\
+    \texttt{struct dentry *test03 = debugfs\_create\_u32("test03",
+      O\_RDONLY, dir, (u32)(lcs\_length("sledgehammer", "jackhammer") == 6));}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Example}
+  \begin{itemize}
+  \item After recompiling the kernel with our new static module, we
+    can check our results.\\
+    \texttt{cat \$(SYSFS\_PATH)/lcs\_test/test*}\\
+    This will display 3 numbers. If none of them are zero, we are done.
+  \end{itemize}
 \end{frame}
 
 \begin{frame}{Acknowledgements}
